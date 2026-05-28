@@ -632,3 +632,62 @@ salto()
 """
 
 
+
+# Actividad 4.1 
+
+print("=== ANÁLISIS UNIVARIADO DE VARIABLES NUMÉRICAS ===")
+
+variables_numericas = [
+    'amount',
+    'oldbalanceOrg',
+    'newbalanceOrig',
+    'oldbalanceDest',
+    'newbalanceDest'
+]
+
+for col in variables_numericas:
+    
+    print(f"\n--- {col.upper()} ---")
+
+    fig, ax = plt.subplots(figsize=(10,5))
+
+    sns.histplot(
+        data=df,
+        x=col,
+        bins=50,
+        kde=True,
+        ax=ax,
+        color='#3498db',
+        edgecolor='white'
+    )
+
+    # Media y mediana
+    mean_val = df[col].mean()
+    median_val = df[col].median()
+
+    ax.axvline(
+        mean_val,
+        color='red',
+        linestyle='--',
+        linewidth=1.5,
+        label=f'Media: {mean_val:.2f}'
+    )
+
+    ax.axvline(
+        median_val,
+        color='orange',
+        linestyle='-',
+        linewidth=1.5,
+        label=f'Mediana: {median_val:.2f}'
+    )
+
+    ax.set_title(f'Distribución de {col}', fontsize=12)
+    ax.set_xlabel(col, fontsize=10)
+    ax.set_ylabel('Frecuencia', fontsize=10)
+
+    ax.legend()
+
+    plt.tight_layout()
+    plt.show()
+
+    salto()
