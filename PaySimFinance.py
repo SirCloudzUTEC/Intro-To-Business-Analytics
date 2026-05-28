@@ -165,7 +165,7 @@ print(f"Registros con balances negativos: {len(balances_negativos)}")
 print(f"Registros con balances inconsistentes: {len(balances_inconsistentes)}")
 
 print("""Decisión:\n
-Eliminaremos montos y balances negativos por ser errores imposibles.
+NO hay montos ni balances negativos, por lo cual no es necesario hacer eliminacion de filas.\n
 Los balances inconsistentes se mantendrán porque podrían representar
 anomalías reales o comportamientos asociados a fraude.""")
 
@@ -179,14 +179,14 @@ df = df[
 ].reset_index(drop=True)
 
 print("\nLimpieza completada.")
-print(f"Dataset se mantiene intacto: {df.shape}")
+print(f"Tamaño del dataset se mantiene: {df.shape}")
 
 salto()
 
 
 
 print("2.5 Tabla resumen de calidad")
-
+    
 resumen_calidad = pd.DataFrame({
     'Variable': df.columns,
     'Tipo': [str(df[col].dtype) for col in df.columns],
