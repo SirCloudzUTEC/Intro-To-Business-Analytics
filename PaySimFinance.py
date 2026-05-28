@@ -278,3 +278,357 @@ print("Grafico entregado.")
 
 salto()
 
+
+
+#ACTIVIDAD 3
+
+# =========================================================
+# ===== EDA NUMÉRICO UNIVARIADO ===========================
+# =========================================================
+
+print("=== ANÁLISIS UNIVARIADO DE VARIABLES NUMÉRICAS ===")
+print()
+
+# Amount 
+print()
+print("=== ANÁLISIS DE AMOUNT ===")
+
+feature = 'amount'
+print(df[feature].describe())
+print()
+print(f"Asimetría: {df[feature].skew():.2f}")
+print(f"Curtosis: {df[feature].kurtosis():.2f}")
+
+plt.figure(figsize=(8,5))
+
+sns.histplot(
+    data=df,
+    x=feature,
+    kde=True,
+    color='steelblue',
+    edgecolor='white',
+    linewidth=0.5
+)
+#plt.xlim(0, 2)
+#plt.ylim(0, 20000)
+
+mean_val = df[feature].mean()
+median_val = df[feature].median()
+
+plt.axvline(
+    mean_val,
+    color='red',
+    linestyle='--',
+    linewidth=1.5,
+    label=f'Media: {mean_val:.2f}'
+)
+
+plt.axvline(
+    median_val,
+    color='orange',
+    linestyle='-',
+    linewidth=1.5,
+    label=f'Mediana: {median_val:.2f}'
+)
+
+plt.title(f'Distribución de {feature}')
+plt.xlabel('Valor')
+plt.ylabel('Frecuencia')
+plt.legend()
+plt.tight_layout()
+
+plt.show()
+plt.close()
+
+#OldbalanceOrg 
+print()
+print("=== ANÁLISIS DE oldbalanceOrg ===")
+
+feature = 'oldbalanceOrg'
+print(df[feature].describe())
+print()
+print(f"Asimetría: {df[feature].skew():.2f}")
+print(f"Curtosis: {df[feature].kurtosis():.2f}")
+
+plt.figure(figsize=(8,5))
+
+sns.histplot(
+    data=df,
+    x=feature,
+    kde=True,
+    color='steelblue',
+    edgecolor='white',
+    linewidth=0.5
+)
+#plt.xlim(0, 2)
+#plt.ylim(0, 20000)
+
+mean_val = df[feature].mean()
+median_val = df[feature].median()
+
+plt.axvline(
+    mean_val,
+    color='red',
+    linestyle='--',
+    linewidth=1.5,
+    label=f'Media: {mean_val:.2f}'
+)
+
+plt.axvline(
+    median_val,
+    color='orange',
+    linestyle='-',
+    linewidth=1.5,
+    label=f'Mediana: {median_val:.2f}'
+)
+
+plt.title(f'Distribución de {feature}')
+plt.xlabel('Valor')
+plt.ylabel('Frecuencia')
+plt.legend()
+plt.tight_layout()
+
+plt.show()
+plt.close()
+
+#newbalanceOrig 
+print()
+print("=== ANÁLISIS DE newbalanceOrig ===")
+
+feature = 'newbalanceOrig'
+print(df[feature].describe())
+print()
+print(f"Asimetría: {df[feature].skew():.2f}")
+print(f"Curtosis: {df[feature].kurtosis():.2f}")
+
+plt.figure(figsize=(8,5))
+
+sns.histplot(
+    data=df,
+    x=feature,
+    kde=True,
+    color='steelblue',
+    edgecolor='white',
+    linewidth=0.5
+)
+#plt.xlim(0, 2)
+#plt.ylim(0, 20000)
+
+mean_val = df[feature].mean()
+median_val = df[feature].median()
+
+plt.axvline(
+    mean_val,
+    color='red',
+    linestyle='--',
+    linewidth=1.5,
+    label=f'Media: {mean_val:.2f}'
+)
+
+plt.axvline(
+    median_val,
+    color='orange',
+    linestyle='-',
+    linewidth=1.5,
+    label=f'Mediana: {median_val:.2f}'
+)
+
+plt.title(f'Distribución de {feature}')
+plt.xlabel('Valor')
+plt.ylabel('Frecuencia')
+plt.legend()
+plt.tight_layout()
+
+plt.show()
+plt.close()
+
+#oldbalanceDest 
+print()
+print("=== ANÁLISIS DE oldbalanceDest ===")
+
+feature = 'oldbalanceDest'
+print(df[feature].describe())
+print()
+print(f"Asimetría: {df[feature].skew():.2f}")
+print(f"Curtosis: {df[feature].kurtosis():.2f}")
+
+plt.figure(figsize=(8,5))
+
+sns.histplot(
+    data=df,
+    x=feature,
+    kde=True,
+    color='steelblue',
+    edgecolor='white',
+    linewidth=0.5
+)
+#plt.xlim(0, 2)
+#plt.ylim(0, 20000)
+
+mean_val = df[feature].mean()
+median_val = df[feature].median()
+
+plt.axvline(
+    mean_val,
+    color='red',
+    linestyle='--',
+    linewidth=1.5,
+    label=f'Media: {mean_val:.2f}'
+)
+
+plt.axvline(
+    median_val,
+    color='orange',
+    linestyle='-',
+    linewidth=1.5,
+    label=f'Mediana: {median_val:.2f}'
+)
+
+plt.title(f'Distribución de {feature}')
+plt.xlabel('Valor')
+plt.ylabel('Frecuencia')
+plt.legend()
+plt.tight_layout()
+plt.show()
+plt.close()
+
+
+
+#newbalanceDest 
+print()
+print("=== ANÁLISIS DE newbalanceDest ===")
+
+feature = 'newbalanceDest'
+print(df[feature].describe())
+print()
+print(f"Asimetría: {df[feature].skew():.2f}")
+print(f"Curtosis: {df[feature].kurtosis():.2f}")
+
+plt.figure(figsize=(8,5))
+
+sns.histplot(
+    data=df,
+    x=feature,
+    kde=True,
+    color='steelblue',
+    edgecolor='white',
+    linewidth=0.5
+)
+#plt.xlim(0, 2)
+#plt.ylim(0, 20000)
+
+mean_val = df[feature].mean()
+median_val = df[feature].median()
+
+plt.axvline(
+    mean_val,
+    color='red',
+    linestyle='--',
+    linewidth=1.5,
+    label=f'Media: {mean_val:.2f}'
+)
+
+plt.axvline(
+    median_val,
+    color='orange',
+    linestyle='-',
+    linewidth=1.5,
+    label=f'Mediana: {median_val:.2f}'
+)
+
+plt.title(f'Distribución de {feature}')
+plt.xlabel('Valor')
+plt.ylabel('Frecuencia')
+plt.legend()
+plt.tight_layout()
+
+plt.show()
+plt.close()
+
+
+salto()
+
+
+
+
+
+"""
+# =========================================================
+# ===== EDA NUMÉRICO UNIVARIADO ===========================
+# =========================================================
+
+print("=== ANÁLISIS UNIVARIADO DE VARIABLES NUMÉRICAS ===")
+
+variables_numericas = [
+    'amount',
+    'oldbalanceOrg',
+    'newbalanceOrig',
+    'oldbalanceDest',
+    'newbalanceDest'
+]
+
+for col in variables_numericas:
+    
+    print(f"\n--- {col.upper()} ---")
+    
+    print(df[col].describe())
+    
+    print(f"Asimetría (Skewness): {df[col].skew():.2f}")
+    print(f"Curtosis: {df[col].kurtosis():.2f}")
+    
+    # Histograma
+    fig, ax = plt.subplots()
+
+    sns.histplot(
+        df[col],
+        bins=50,
+        kde=True,
+        ax=ax,
+        color='#3498db'
+    )
+
+    # Media y mediana
+    mean_val = df[feature].mean()
+    median_val = df[feature].median()
+
+    axes[i].axvline(
+        mean_val,
+        color='red',
+        linestyle='--',
+        linewidth=1.5,
+        label=f'Media: {mean_val:.2f}'
+    )
+
+    axes[i].axvline(
+        median_val,
+        color='orange',
+        linestyle='-',
+        linewidth=1.5,
+        label=f'Mediana: {median_val:.2f}'
+    )
+
+    axes[i].set_title(
+        feature.replace('_', ' ').title(),
+        fontsize=11,
+        fontweight='bold'
+    )
+
+    axes[i].set_xlabel('Valor')
+    axes[i].set_ylabel('Frecuencia')
+
+    axes[i].legend(fontsize=8)
+
+    plt.suptitle(
+        'Distribución de Variables Numéricas',
+        fontsize=16,
+        fontweight='bold',
+        y=1.02)
+
+    plt.tight_layout()
+    plt.show()
+
+salto()
+
+"""
+
+
