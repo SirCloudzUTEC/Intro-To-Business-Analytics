@@ -30,7 +30,7 @@ salto()
 #Explicacion de la reduccion del dataset
 print("1.3 Adelantado.\n    ")
 print("Debido a que nuestro dataset es bastante grande, vamos a trabajar con una muestra reducida del mismo. \nEsto nos permitirá realizar análisis y visualizaciones de manera más eficiente sin perder la esencia de los datos.")
-dfOriginal = pd.read_csv('PaySim_Reducido.csv')
+dfOriginal = pd.read_csv('paysim.csv')
 print(f"El dataset original tiene {dfOriginal.shape[0]} filas y {dfOriginal.shape[1]} columnas.")
 
 df = dfOriginal.sample(n=100_000, random_state=42).reset_index(drop=True)
@@ -220,7 +220,50 @@ print("\nTabla de calidad generada correctamente.")
 salto()
 
 
-# 3.1 y 3.2 para copiar
+
+print("3.1 Estadísticas descriptivas de variables numéricas\n")
+# Seleccionamos solo columnas numéricas
+numericas = df.select_dtypes(include=[np.number]).columns.tolist()
+
+# Calculamos estadísticos base + adicionales
+desc = df[numericas].describe().round(2)
+
+# Agregamos métricas adicionales
+desc.loc['cv'] = (df[numericas].std() / df[numericas].mean()).round(4)      # Coeficiente de Variación
+desc.loc['skew'] = df[numericas].skew().round(4)                           # Asimetría
+desc.loc['kurtosis'] = df[numericas].kurtosis().round(4)                   # Curtosis
+
+print(desc.T)  # Transpuesto para mejor visualización
+salto()
+
+
+
+
+print("\n3.2 Interpretación de Variables Numéricas:")
+
+for col in numericas:
+    mean = df[col].mean()
+    median = df[col].median()
+    cv = (df[col].std() / mean) if mean != 0 else 0
+    skew = df[col].skew()
+    kurt = df[col].kurtosis()
+    
+    print(f"\n→ {col.upper()}:")
+    print(f"   Media: {mean:,.2f} | Mediana: {median:,.2f}")
+    
+    if mean != 0 and abs(mean - median) / abs(mean) > 0.1:
+        print("   ⚠️  Media y mediana DIFEREN muy significativamente → Distribución asimétrica")
+    else:
+        print("   Media y mediana cercanas → Distribución relativamente simétrica")
+    
+    print(f"   CV: {cv:.4f} → {'Alta variabilidad' if cv > 1 else 'Moderada/Baja variabilidad'}")
+    
+    if skew > 1 or skew < -1:
+        print(f"   ⚠️  Asimetría FUERTE (skew = {skew:.2f})")
+    if kurt > 3:
+        print(f"   ⚠️  Curtosis alta (colas pesadas) = {kurt:.2f}")
+
+
 
 
 print("3.3 Análisis de variables categóricas\n")
@@ -274,7 +317,7 @@ salto()
 
 
 print("3.4 Variable Objetivo Balanceada?")
-ig, ax = plt.subplots()
+fig, ax = plt.subplots()
 
 df['isFraud'].value_counts().plot(
     kind='bar',
@@ -352,39 +395,6 @@ plt.show()
 salto()
 
 
-
-
-# ===== EDA =====
-
-# Metodos de pago
-fig, ax = plt.subplots()
-
-df['type'].value_counts().sort_index().plot(
-    kind='bar',
-    ax=ax,
-    color=['#3498db', '#9b59b6', '#e67e22', '#1abc9c', '#f1c40f'],
-    edgecolor='white'
-)
-
-ax.set_title('Distribución de Tipos de Transacción', fontsize=12)
-ax.set_xlabel('Tipo de Transacción', fontsize=10)
-ax.set_ylabel('Cantidad', fontsize=10)
-
-for i, v in enumerate(df['type'].value_counts().sort_index()):
-    ax.text(i, v + 5, f'{v}', ha='center', fontweight='bold')
-
-plt.show()
-print("Grafico entregado.")
-
-salto()
-
-
-
-
-
-# ============================================================
-# Actividad 4.1 
-
 print("4.1. Analisis univariado de vairables numericas")
 
 variables_numericas = [
@@ -443,9 +453,50 @@ for col in variables_numericas:
     salto()
 
 
+print("4.2 Clasificación de distribuciones\n")
 
-# ============================================================
-# ACTIVIDAD 4.3 
+df_numerico = df.select_dtypes(include=[np.number])
+
+clasificacion = []
+
+for col in df_numerico.columns:
+
+    skew = df_numerico[col].skew()
+
+    if abs(skew) < 0.5:
+        tipo = "Aproximadamente normal"
+    elif skew >= 0.5:
+        tipo = "Sesgada a la derecha"
+    else:
+        tipo = "Sesgada a la izquierda"
+
+    clasificacion.append([col, round(skew, 4), tipo])
+
+tabla_distribuciones = pd.DataFrame(
+    clasificacion,
+    columns=["Variable", "Skewness", "Clasificación"]
+)
+
+print(tabla_distribuciones)
+
+print("Histogramas de variables numéricas")
+
+for col in df_numerico.columns:
+
+    plt.figure(figsize=(8,4))
+
+    sns.histplot(
+        df[col],
+        bins=30,
+        kde=True
+    )
+
+    plt.title(f'Distribución de {col}')
+    plt.xlabel(col)
+    plt.ylabel('Frecuencia')
+
+    plt.show()
+
 
 print("4.3 Transformación logarítmica para variables con skewness > 2")
 
@@ -528,19 +579,59 @@ for col in vars_a_transformar:
 salto()
 
 
-# ============================================================
-# ACTIVIDAD 4.5 
+print("4.4 Variables categóricas\n")
+
+columnas_categoricas = ['type']
+
+for col in columnas_categoricas:
+
+    frecuencias = (
+        df[col]
+        .value_counts()
+        .sort_values(ascending=False)
+    )
+
+    plt.figure(figsize=(10,5))
+
+    sns.barplot(
+        x=frecuencias.index,
+        y=frecuencias.values
+    )
+
+    plt.title(f'Frecuencia de categorías - {col}')
+    plt.xlabel(col)
+    plt.ylabel('Cantidad')
+
+    plt.xticks(rotation=45)
+
+    plt.show()
+
+    porcentaje_dominante = (
+        frecuencias.iloc[0] / frecuencias.sum()
+    ) * 100
+
+    print(f"Variable: {col}")
+    print(f"Categoría dominante: {frecuencias.index[0]}")
+    print(f"Representación: {porcentaje_dominante:.2f}%")
+
+    if porcentaje_dominante > 50:
+        print("Existe una categoría dominante que podría sesgar el análisis.\n")
+    else:
+        print("No existe una categoría dominante significativa.\n")
+
+    print("="*60)
+
 
 print("4.5 Distribución de amount separada por variable objetivo (isFraud)\n")
 
-df['amount_log'] = np.log1p(df['amount'])
+amount_log = np.log1p(df['amount'])
 
 fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 
-#Gráfico izquierdo: escala original 
+# Gráfico izquierdo: escala original
 sns.histplot(
     data=df,
-    x='amount',
+    x=amount_log,
     hue='isFraud',
     bins=60,
     kde=True,
@@ -555,10 +646,10 @@ axes[0].set_title('Distribución de amount por isFraud\n(densidad)', fontsize=11
 axes[0].set_xlabel('Monto de la transacción')
 axes[0].set_ylabel('Densidad')
 
-#Gráfico derecho: escala log1p
+# Gráfico derecho: escala log1p
 sns.histplot(
     data=df,
-    x='amount_log',
+    x=amount_log,     # ✅ Corregido
     hue='isFraud',
     bins=60,
     kde=True,
@@ -579,3 +670,29 @@ plt.show()
 
 print("Gráfico entregado.")
 salto()
+
+
+
+print("Analisis extra:\nTipos de Transaccion:\n")
+# Metodos de pago
+fig, ax = plt.subplots()
+
+df['type'].value_counts().sort_index().plot(
+    kind='bar',
+    ax=ax,
+    color=['#3498db', '#9b59b6', '#e67e22', '#1abc9c', '#f1c40f'],
+    edgecolor='white'
+)
+
+ax.set_title('Distribución de Tipos de Transacción', fontsize=12)
+ax.set_xlabel('Tipo de Transacción', fontsize=10)
+ax.set_ylabel('Cantidad', fontsize=10)
+
+for i, v in enumerate(df['type'].value_counts().sort_index()):
+    ax.text(i, v + 5, f'{v}', ha='center', fontweight='bold')
+
+plt.show()
+print("Grafico entregado.")
+
+salto()
+
