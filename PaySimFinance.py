@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as mtick
 import os
 
-# ─────────── CONFIGURACIONES ───────────
 plt.rcParams['figure.figsize'] = (10, 5)
 plt.rcParams['axes.spines.top']   = False
 plt.rcParams['axes.spines.right'] = False
@@ -19,10 +18,6 @@ def salto():
 print("Configuraciones hechas.")
 salto()
 
-
-# ══════════════════════════════════════════════════════════
-#  ACTIVIDAD 1 — CARGA E INSPECCIÓN INICIAL
-# ══════════════════════════════════════════════════════════
 
 # ── 1.3 — Justificación de la muestra (adelantado) ──────
 print("1.3 — Justificación de la muestra\n")
@@ -41,8 +36,8 @@ df = pd.read_csv('PaySim_Reducido.csv')
 print(f"Dataset cargado: {df.shape[0]:,} filas × {df.shape[1]} columnas.")
 salto()
 
+#Eliminar y explicar pq borramos ids, step.
 
-# ── 1.1 — Primeras filas y descripción de columnas ──────
 print("1.1 — Primeras 5 filas del dataset\n")
 print(df.head(5).to_string())
 print("""
@@ -62,7 +57,6 @@ Descripción de columnas (contexto de negocio):
 salto()
 
 
-# ── 1.2 — Dimensiones, memoria y dtypes ─────────────────
 print("1.2 — Dimensiones, memoria y tipos de dato\n")
 filas, cols = df.shape
 mem_bytes = df.memory_usage(deep=True).sum()
@@ -74,7 +68,6 @@ print(df.dtypes.to_string())
 salto()
 
 
-# ── 1.4 — Pregunta de negocio ────────────────────────────
 print("1.4 — Pregunta de negocio\n")
 print(
     "El dataset PaySim simula transacciones financieras móviles con el objetivo "
@@ -92,9 +85,6 @@ print(
 salto()
 
 
-# ══════════════════════════════════════════════════════════
-#  ACTIVIDAD 2 — CALIDAD DE DATOS
-# ══════════════════════════════════════════════════════════
 
 # ── 2.1 — Valores nulos ──────────────────────────────────
 print("2.1 — Valores nulos\n")
@@ -239,9 +229,7 @@ debe considerarse en cualquier modelo predictivo futuro.
 salto()
 
 
-# ══════════════════════════════════════════════════════════
-#  ACTIVIDAD 3 — ESTADÍSTICA DESCRIPTIVA
-# ══════════════════════════════════════════════════════════
+#actividad 3
 
 numericas = ['amount', 'oldbalanceOrg', 'newbalanceOrig',
              'oldbalanceDest', 'newbalanceDest', 'step']
@@ -701,4 +689,4 @@ plt.show()
 print("Gráfico de normalización generado.")
 salto()
 
-print(" Análisis completo finalizado.")
+print("✔ Análisis completo finalizado.")
