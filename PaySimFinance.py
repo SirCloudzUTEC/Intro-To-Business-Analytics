@@ -473,8 +473,6 @@ salto()
 # ── 4.3 — Transformación Z-Score para skew > 2 ────────────
 print("4.3 — Transformación Z-Score (skewness > 2)\n")
 
-from sklearn.preprocessing import StandardScaler
-
 skewness_vals = df[continuas].skew()
 vars_zscore = skewness_vals[skewness_vals > 2].index.tolist()
 
@@ -483,10 +481,9 @@ print(skewness_vals.round(4).to_string())
 print(f"\nVariables a transformar (skew > 2): {vars_zscore}\n")
 
 for col in vars_zscore:
-    scaler = StandardScaler()
-    col_zscore = scaler.fit_transform(df[[col]]).flatten()
+    col_zscore = (df[col] - df[col].mean()) / df[col].std()
     skew_antes   = df[col].skew()
-    skew_despues = pd.Series(col_zscore).skew()
+    skew_despues = col_zscore.skew()
 
     fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 
@@ -556,8 +553,7 @@ salto()
 # ── 4.5 — amount separado por isFraud ───────────────────
 print("4.5 — Distribución de amount separada por isFraud\n")
 
-scaler = StandardScaler()
-amount_zscore = scaler.fit_transform(df[['amount']]).flatten()
+amount_zscore = (df['amount'] - df['amount'].mean()) / df['amount'].std()
 df['amount_zscore'] = amount_zscore
 
 fig, axes = plt.subplots(1, 2, figsize=(14, 5))
@@ -604,7 +600,6 @@ Interpretación:
 
 df.drop(columns=['amount_zscore'], inplace=True)
 salto()
-
 
 
 # ══════════════════════════════════════════════════════════
@@ -670,15 +665,14 @@ axes[0].set_xlabel('amount')
 axes[0].set_ylabel('Frecuencia')
 
 # Min-Max
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
-mm  = MinMaxScaler().fit_transform(df[['amount']]).flatten()
+mm  = (df['amount'] - df['amount'].min()) / (df['amount'].max() - df['amount'].min())
 sns.histplot(mm, bins=50, kde=True, ax=axes[1], color='#e67e22', edgecolor='white')
 axes[1].set_title('Min-Max sobre amount\nrango [0, 1]', fontsize=10)
 axes[1].set_xlabel('Valor escalado [0–1]')
 axes[1].set_ylabel('Frecuencia')
 
 # Z-Score
-zs  = StandardScaler().fit_transform(df[['amount']]).flatten()
+zs  = (df['amount'] - df['amount'].mean()) / df['amount'].std()
 sns.histplot(zs, bins=50, kde=True, ax=axes[2], color='#1abc9c', edgecolor='white')
 axes[2].set_title('Z-Score sobre amount\nmedia=0, std=1', fontsize=10)
 axes[2].set_xlabel('Valor estandarizado')
