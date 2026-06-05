@@ -470,20 +470,23 @@ print("""
 salto()
 
 
-# ── 4.3 — Transformación log1p para skew > 2 ────────────
-print("4.3 — Transformación logarítmica (skewness > 2)\n")
+# ── 4.3 — Transformación Z-Score para skew > 2 ────────────
+print("4.3 — Transformación Z-Score (skewness > 2)\n")
+
+from sklearn.preprocessing import StandardScaler
 
 skewness_vals = df[continuas].skew()
-vars_log = skewness_vals[skewness_vals > 2].index.tolist()
+vars_zscore = skewness_vals[skewness_vals > 2].index.tolist()
 
 print("Skewness por variable continua:")
 print(skewness_vals.round(4).to_string())
-print(f"\nVariables a transformar (skew > 2): {vars_log}\n")
+print(f"\nVariables a transformar (skew > 2): {vars_zscore}\n")
 
-for col in vars_log:
-    col_log = np.log1p(df[col])
+for col in vars_zscore:
+    scaler = StandardScaler()
+    col_zscore = scaler.fit_transform(df[[col]]).flatten()
     skew_antes   = df[col].skew()
-    skew_despues = col_log.skew()
+    skew_despues = pd.Series(col_zscore).skew()
 
     fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 
@@ -498,18 +501,18 @@ for col in vars_log:
     axes[0].set_xlabel(col); axes[0].set_ylabel('Frecuencia'); axes[0].legend()
 
     # Después
-    sns.histplot(col_log, bins=60, kde=True, ax=axes[1],
+    sns.histplot(col_zscore, bins=60, kde=True, ax=axes[1],
                  color='#1abc9c', edgecolor='white')
-    axes[1].axvline(col_log.mean(),   color='red',    linestyle='--', linewidth=1.5,
-                    label=f'Media: {col_log.mean():.2f}')
-    axes[1].axvline(col_log.median(), color='orange', linestyle='-',  linewidth=1.5,
-                    label=f'Mediana: {col_log.median():.2f}')
-    axes[1].set_title(f'log1p({col}) — DESPUÉS  (skew: {skew_despues:.2f})', fontsize=11)
-    axes[1].set_xlabel(f'log1p({col})'); axes[1].set_ylabel('Frecuencia'); axes[1].legend()
+    axes[1].axvline(col_zscore.mean(),   color='red',    linestyle='--', linewidth=1.5,
+                    label=f'Media: {col_zscore.mean():.2f}')
+    axes[1].axvline(np.median(col_zscore), color='orange', linestyle='-',  linewidth=1.5,
+                    label=f'Mediana: {np.median(col_zscore):.2f}')
+    axes[1].set_title(f'Z-Score({col}) — DESPUÉS  (skew: {skew_despues:.2f})', fontsize=11)
+    axes[1].set_xlabel(f'Z-Score({col})'); axes[1].set_ylabel('Frecuencia'); axes[1].legend()
 
-    plt.suptitle(f'Comparación antes/después de log1p — {col}', fontsize=13, fontweight='bold')
+    plt.suptitle(f'Comparación antes/después de Z-Score — {col}', fontsize=13, fontweight='bold')
     plt.tight_layout()
-    plt.savefig(f'4_3_log1p_{col}.png', dpi=120, bbox_inches='tight')
+    plt.savefig(f'4_3_zscore_{col}.png', dpi=120, bbox_inches='tight')
     plt.show()
 
     mejora = "✔ MEJORÓ" if abs(skew_despues) < abs(skew_antes) else "✘ NO mejoró"
@@ -553,34 +556,35 @@ salto()
 # ── 4.5 — amount separado por isFraud ───────────────────
 print("4.5 — Distribución de amount separada por isFraud\n")
 
-amount_log = np.log1p(df['amount'])
-df['amount_log'] = amount_log
+scaler = StandardScaler()
+amount_zscore = scaler.fit_transform(df[['amount']]).flatten()
+df['amount_zscore'] = amount_zscore
 
 fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 
-# Izquierdo: escala original (con log1p ya aplicado para legibilidad)
+# Izquierdo: escala original (con Z-Score ya aplicado para legibilidad)
 sns.histplot(
-    data=df, x='amount_log', hue='isFraud',
+    data=df, x='amount_zscore', hue='isFraud',
     bins=60, kde=True, stat='density', common_norm=False,
     palette={0: '#2ecc71', 1: '#e74c3c'}, alpha=0.55,
     edgecolor='white', ax=axes[0]
 )
-axes[0].set_title('log1p(amount) por isFraud\n(densidad normalizada)', fontsize=11)
-axes[0].set_xlabel('log1p(amount)')
+axes[0].set_title('Z-Score(amount) por isFraud\n(densidad normalizada)', fontsize=11)
+axes[0].set_xlabel('Z-Score(amount)')
 axes[0].set_ylabel('Densidad')
 axes[0].legend(title='isFraud', labels=['1 — Fraude', '0 — No fraude'])
 
 # Derecho: boxplot para ver medianas y outliers
 df["isFraud_lbl"] = df["isFraud"].map({0: "No fraude", 1: "Fraude"})
 sns.boxplot(
-    data=df, x="isFraud_lbl", y="amount_log",
+    data=df, x="isFraud_lbl", y="amount_zscore",
     hue="isFraud_lbl",
     palette={"No fraude": "#2ecc71", "Fraude": "#e74c3c"},
     legend=False, ax=axes[1], width=0.4
 )
-axes[1].set_title("Boxplot de log1p(amount) por isFraud", fontsize=11)
+axes[1].set_title("Boxplot de Z-Score(amount) por isFraud", fontsize=11)
 axes[1].set_xlabel("isFraud  (0 = legítima, 1 = fraude)")
-axes[1].set_ylabel("log1p(amount)")
+axes[1].set_ylabel("Z-Score(amount)")
 
 plt.suptitle('Monto de transacción vs. Fraude', fontsize=13, fontweight='bold')
 plt.tight_layout()
@@ -591,15 +595,16 @@ print("""
 Interpretación:
   - Las transacciones fraudulentas (rojo) se concentran en montos más altos
     que las legítimas (verde). La distribución de fraude muestra un pico
-    hacia la derecha del histograma de log1p(amount).
+    hacia la derecha del histograma de Z-Score(amount).
   - El boxplot confirma que la mediana de amount en fraudes es notablemente
     mayor que en transacciones legítimas.
   - Esto convierte a 'amount' en una feature discriminante importante para
     cualquier modelo de detección de fraude.
 """)
 
-df.drop(columns=['amount_log'], inplace=True)
+df.drop(columns=['amount_zscore'], inplace=True)
 salto()
+
 
 
 # ══════════════════════════════════════════════════════════
@@ -633,11 +638,11 @@ Recomendación por variable:
 
 recomendaciones = {
     'step':           ('Z-Score',  'Distribución aprox. normal. Z-Score preserva la forma bien.'),
-    'amount':         ('log1p + Z-Score', 'Skew = 22. Primero log1p, luego estandarizar. Min-Max sería aplastado por el outlier de $37M.'),
-    'oldbalanceOrg':  ('log1p + Z-Score', 'Skew = 5.25. Misma lógica que amount. Outliers fuertes.'),
-    'newbalanceOrig': ('log1p + Z-Score', 'Skew = 5.18. Muchos valores en 0; log1p los convierte en 0 limpiamente.'),
-    'oldbalanceDest': ('log1p + Z-Score', 'Skew = 16.5. Muchas cuentas mula con saldo 0 inicial. log1p necesario.'),
-    'newbalanceDest': ('log1p + Z-Score', 'Skew = 16.4. Igual que oldbalanceDest.'),
+    'amount':         ('Z-Score', 'Skew = 22. Z-Score estandariza directamente. Más robusto frente a outliers.'),
+    'oldbalanceOrg':  ('Z-Score', 'Skew = 5.25. Z-Score estandariza directamente. Outliers fuertes.'),
+    'newbalanceOrig': ('Z-Score', 'Skew = 5.18. Z-Score estandariza directamente. Valores en 0 manejados.'),
+    'oldbalanceDest': ('Z-Score', 'Skew = 16.5. Z-Score estandariza directamente. Cuentas mula con saldo 0.'),
+    'newbalanceDest': ('Z-Score', 'Skew = 16.4. Igual que oldbalanceDest.'),
 }
 
 print(f"{'Variable':<18} {'Método recomendado':<22} {'Justificación'}")
@@ -647,8 +652,7 @@ for col, (metodo, justif) in recomendaciones.items():
 
 print("""
 Conclusión:
-  - Para este dataset, Z-Score aplicado sobre log1p(variable) es el enfoque
-    más adecuado para las 5 variables financieras.
+  - Para este dataset, Z-Score es el enfoque más adecuado para las 5 variables financieras.
   - Min-Max solo es conveniente para 'step', que ya tiene una distribución
     más uniforme y valores acotados (1–736), pero Z-Score también funciona.
   - isFraud e isFlaggedFraud son binarias → no se normalizan.
@@ -659,25 +663,24 @@ Conclusión:
 # Demo visual: comparación de las 3 escalas para 'amount'
 fig, axes = plt.subplots(1, 3, figsize=(16, 4))
 
-# Original con log1p
-amount_log = np.log1p(df['amount'])
-sns.histplot(amount_log, bins=50, kde=True, ax=axes[0], color='#3498db', edgecolor='white')
-axes[0].set_title('log1p(amount)\n(sin normalizar)', fontsize=10)
-axes[0].set_xlabel('log1p(amount)')
+# Original
+sns.histplot(df['amount'], bins=50, kde=True, ax=axes[0], color='#3498db', edgecolor='white')
+axes[0].set_title('amount\n(sin normalizar)', fontsize=10)
+axes[0].set_xlabel('amount')
 axes[0].set_ylabel('Frecuencia')
 
-# Min-Max sobre log1p
+# Min-Max
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
-mm  = MinMaxScaler().fit_transform(amount_log.values.reshape(-1,1)).flatten()
+mm  = MinMaxScaler().fit_transform(df[['amount']]).flatten()
 sns.histplot(mm, bins=50, kde=True, ax=axes[1], color='#e67e22', edgecolor='white')
-axes[1].set_title('Min-Max sobre log1p(amount)\nrango [0, 1]', fontsize=10)
+axes[1].set_title('Min-Max sobre amount\nrango [0, 1]', fontsize=10)
 axes[1].set_xlabel('Valor escalado [0–1]')
 axes[1].set_ylabel('Frecuencia')
 
-# Z-Score sobre log1p
-zs  = StandardScaler().fit_transform(amount_log.values.reshape(-1,1)).flatten()
+# Z-Score
+zs  = StandardScaler().fit_transform(df[['amount']]).flatten()
 sns.histplot(zs, bins=50, kde=True, ax=axes[2], color='#1abc9c', edgecolor='white')
-axes[2].set_title('Z-Score sobre log1p(amount)\nmedia=0, std=1', fontsize=10)
+axes[2].set_title('Z-Score sobre amount\nmedia=0, std=1', fontsize=10)
 axes[2].set_xlabel('Valor estandarizado')
 axes[2].set_ylabel('Frecuencia')
 
