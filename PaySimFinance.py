@@ -598,15 +598,47 @@ Interpretación:
     cualquier modelo de detección de fraude.
 """)
 
-df.drop(columns=['amount_zscore'], inplace=True)
 salto()
 
+
+# ── Extra — Relación entre type y amount ───────────────────
+print("Relación entre tipo de transacción y monto\n")
+
+resumen = df.groupby('type')['amount'].agg([
+    'count',
+    'mean',
+    'median',
+    'std',
+    'sum'
+]).round(2)
+
+print(resumen)
+
+fig, ax = plt.subplots(figsize=(10,5))
+sns.boxplot(data=df, x='type', y='amount', ax=ax)
+ax.set_title('Distribución de amount por tipo de transacción')
+plt.tight_layout()
+plt.show()
+
+print("""
+Nota de Gráfica de relacion entre transacción y monto: 
+    El gráfico muestra que las transacciones de tipo TRANSFER tienen montos 
+    considerablemente más altos y una mayor dispersión que los demás tipos de
+    transacción, además de presentar una gran cantidad de valores atípicos 
+    (outliers). Por otro lado, categorías como DEBIT y PAYMENT manejan montos 
+    mucho menores y más concentrados, lo que indica un comportamiento más 
+    estable y menos variable.""")
+print()
+
+df.drop(columns=['amount_zscore'], inplace=True)
+salto()
 
 # ══════════════════════════════════════════════════════════
 #  EXTRA — ¿Es necesario normalizar? Min-Max vs Z-Score
 # ══════════════════════════════════════════════════════════
 
-print("EXTRA — Análisis de normalización: Min-Max vs Z-Score\n")
+print("")
+print("EXTRA — Análisis de normalización: Min-Max vs Z-Score")
 
 print("""
 ¿Para qué sirve normalizar?
