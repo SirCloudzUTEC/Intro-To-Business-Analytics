@@ -673,6 +673,34 @@ salto()
 
 
 
+
+print("=== ELIMINACIÓN DE COLUMNAS NO RELEVANTES ===\n")
+
+# Eliminamos columnas que no aportan valor analítico
+cols_to_drop = ['nameOrig', 'nameDest', 'step']
+
+df = df.drop(columns=cols_to_drop)
+
+print(f"Columnas eliminadas: {cols_to_drop}")
+print(f"Nuevo tamaño del dataset: {df.shape[0]:,} filas × {df.shape[1]} columnas")
+print("\nColumnas restantes:", df.columns.tolist())
+print("=== JUSTIFICACIÓN DE ELIMINACIÓN DE COLUMNAS ===")
+print("• nameOrig y nameDest:")
+print("  Son identificadores únicos de cuentas origen y destino.")
+print("  No aportan información relevante para el análisis de fraude.")
+print("  Solo aumentan la dimensionalidad sin valor predictivo.")
+print("")
+print("• step:")
+print("  Representa unidades de tiempo en la simulación.")
+print("  No se realizará análisis temporal en este estudio.")
+print("  Además, su distribución multimodal genera ruido visual en los gráficos.")
+
+print("")
+print("Nota: Todas las eliminaciones se realizaron manteniendo intacto el número de registros (índice).")
+
+
+
+
 print("Analisis extra:\nTipos de Transaccion:\n")
 # Metodos de pago
 fig, ax = plt.subplots()
